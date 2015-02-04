@@ -1,0 +1,39 @@
+
+(require htdp/draw)
+
+
+(require lang/posn)
+(start/cartesian-plane 800 800)
+
+
+
+(define grafica 
+  (lambda(funcion)
+    (grafica_aux_pos funcion 0)
+    (grafica_aux_neg funcion 0)
+    ))
+
+(define grafica_aux_pos funcion
+  (lambda (x)
+    (cond [(= x 400) 0]
+          [else
+           (draw-solid-line  (make-posn (+ x 400) (- 400 (funcion x))) (make-posn (+ x (+ 400 1)) (- 400 (funcion (+ x 1)))) 'red)
+           (print (funcion x))
+           (display "\n")
+           (grafica_aux_pos funcion (+ x 1))
+           ])))
+
+(define grafica_aux_neg funcion
+  (lambda (x)
+    (cond [(= x -400) 0]
+          [else
+           (draw-solid-line  (make-posn (+ x 400) (- 400 (funcion x))) (make-posn (+ x (+ 400 1)) (- 400 (funcion (- x 1)))) 'red)
+           (print (funcion x))
+           (display "\n")
+           (grafica_aux_neg funcion (- x 1))
+           ])))
+  
+
+
+
+(grafica (eval '(lambda (x)  (expt x 2))))

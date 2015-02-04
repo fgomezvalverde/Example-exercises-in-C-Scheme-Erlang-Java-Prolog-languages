@@ -1,0 +1,7 @@
+(call-with-input-file "a.txt"
+  (lambda (input-port)
+    (let loop ((x (read-char input-port)))
+      (if (not (eof-object? x))
+          (begin
+            (display x)
+            (loop (read-char input-port)))))))

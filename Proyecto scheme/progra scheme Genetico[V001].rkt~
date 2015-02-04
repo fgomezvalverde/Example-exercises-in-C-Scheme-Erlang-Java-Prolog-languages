@@ -1,0 +1,102 @@
+
+
+
+;;FUNCIONES QUE NECESITA EL PROGRAMA
+(define signo (lambda()'(+ / - * expt)))
+(define fun (lambda() '(lambda (x))))
+(define cantidad_mutacion (lambda () 17))
+(define constantes (lambda () '(-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 x x x x x x x x x x 1 2 3 4 5 6 7 8 9 10)))
+(define rnd_poblacion_inicial (lambda () 6))
+
+;; VALORES DE PRUEBA , BORRAR LUEGO
+(define tamanio (lambda ()10))
+(define tipo (lambda()'(x)))
+(define prueba (lambda() '()))
+(define poblacion (lambda() '(
+                    (/ (* x (* x 8)) (+ 5 3))
+                    (* (+ x (- x 7)) (expt x (+ 3 2)))
+                    (+ (- x 9) (/ (+ 3 x) 9))
+                    (- (+ x (/ 2 x)) (* 5 x))
+                    (/ x 47)
+                    (- (* 3 (/ x 3)) (+ 4 x))
+                    (expt (/ 3 x) (+ 2 (- x 2)))
+                    (+ x (+ 4 3))
+                    (- (- 3 x) (+ (* 2 x) 4))
+                    (+ (expt x 3) 4)
+                    ))) 
+(define entrada '((-3 9) (-2 4) (-1 1) (0 0) (1 1) (2 4) (3 9) (4 16)))  
+
+
+;Algoritmo que crea los individios aleatorio de la primera poblacion
+;Cantidad: el numero de poblacion que se desea
+(define aleatorio
+  (lambda (cantidad)
+    (cond[(equal? cantidad 0)'()]
+         [else
+          (append (list (aleatorio_aux (random (rnd_poblacion_inicial)))) (aleatorio (- cantidad 1)))]
+         )))
+
+
+;Ayuda a aleatorio a generar un solo invididuo
+;numero_Rnd: ayuda al algorito a decidir si debe crear una rama nueva o terminar
+(define aleatorio_aux
+  (lambda (numero_Rnd)
+    (cond [(equal? numero_Rnd 4)(list (list-ref (signo) (random (length (signo)) )) (aleatorio_aux (random (rnd_poblacion_inicial))) (aleatorio_aux (random (rnd_poblacion_inicial))))]
+          [(equal? numero_Rnd 3)(list (list-ref (signo) (random (length (signo)) )) (list-ref (constantes) (random (length (constantes)) )) (aleatorio_aux (random (rnd_poblacion_inicial))))]
+          [(equal? numero_Rnd 2)(list (list-ref (signo) (random (length (signo)) )) (aleatorio_aux (random (rnd_poblacion_inicial))) (list-ref (constantes) (random (length (constantes)))))]
+          [else
+           (list (list-ref (signo) (random (length (signo)) )) (list-ref (constantes) (random (length (constantes)))) (list-ref (constantes) (random (length (constantes)))))
+           ])))
+
+
+
+;lee el text para hagarrar la lista de evaluacion
+;Archivo: nombre del archivo en string, tiene que ser donde esta el programa
+;Sacado de: http://www.scheme.com/tspl3/io.html 
+(define lectura
+  (lambda(archivo)
+    (call-with-input-file (archivo)
+      (lambda (p)
+        (let f ((x (read p)))
+          (if (eof-object? x)
+              '()
+          (cons x (f (read p)))))))))
+
+
+;hace el cruce , agarrando el hijo izquierdo de uno y el derecho del otro
+;Pobla: poblacion actual
+;Contador: cantidad de invidividuos a crear
+(define cruce 
+  (lambda (pobla contador)  ; contador representa la cantidad de cruces necesarios
+    (cond[(equal? contador 1)(append pobla (list (aleatorio_aux (random 5)))) ]
+         [else
+          (cons (list (list-ref (signo) (random (length (signo)))) (list-ref (list-ref pobla (- contador 2)) 1) (list-ref (list-ref pobla (- contador 1)) 2)) (cruce pobla (- contador 1)))])))
+
+
+
+;segun la posibilidad del cantidad_ mutacion es el porcentaje a acertar para mutar un individuo,si acerta el random se hace la mutacion sino sigue igual
+;pobla: la poblacion actual
+(define mutacion
+  (lambda (pobla)
+    (cond[(> (random 100) (cantidad_mutacion))pobla]
+         [else ; se va agregar el signo y quitar el mismo
+          (append (list (append (list (list-ref (signo) (random (length (signo))))) (remove (caar pobla) (car pobla)))) (cdr pobla))])))
+
+
+;Evalua los individuos con la funcion de evaluacion
+;Poblacion: los individuos actuales
+;Evalua: funcion de evaluacion
+(define evaluacion
+  (lambda (poblacion evalua)
+    (map (lambda (funcion evaluador)
+         (abs(- ((eval (append '(lambda (x)) funcion)) (first evaluador)) (second evaluador))))
+       poblacion
+       evalua)))
+   
+   
+;FUNCION DE ENTRADA
+(define principal
+  (lambda (generaciones poblacion nombre_Archivo elitismo)
+    (
+    )))
+
